@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ru" data-season="winter">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Доска</title>
+<meta name="theme-color" content="#ece7dc">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Доска">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Neucha&family=Rubik:wght@600;800&display=swap" rel="stylesheet">
+<style>
+/* ---------- сезоны ---------- */
+html[data-season="winter"]{
+  --paper:#ece7dc; --sheet:#f8f5ee; --sheet-2:#f0ebe1; --ink:#22304a; --ink-soft:#66708a;
+  --accent:#c4412c; --accent-2:#2e5e4e; --line:#d3dce6;
+  --c0:#fbf9f4; --c1:#ee8c76; --c2:#f2cd63; --c3:#94b9a0; --c4:#abc4de; --c5:#cfaccb;
+}
+html[data-season="spring"]{
+  --paper:#e9ede0; --sheet:#fafbf3; --sheet-2:#f0f3e5; --ink:#263a2e; --ink-soft:#66786b;
+  --accent:#d65f86; --accent-2:#4b8a57; --line:#d6e4cf;
+  --c0:#fdfdf7; --c1:#f3a9bb; --c2:#f3dd7c; --c3:#a9d19c; --c4:#b6d2ea; --c5:#cfb9e8;
+}
+html[data-season="summer"]{
+  --paper:#f3e9d2; --sheet:#fffaee; --sheet-2:#f8eedb; --ink:#24305a; --ink-soft:#616a93;
+  --accent:#e5562f; --accent-2:#2b8bb0; --line:#d3e3ec;
+  --c0:#fffcf3; --c1:#f6906e; --c2:#ffd35a; --c3:#90d1a7; --c4:#8ccae9; --c5:#f3a9ca;
+}
+html[data-season="autumn"]{
+  --paper:#eee1c8; --sheet:#fbf4e7; --sheet-2:#f3e8d3; --ink:#3a2a1f; --ink-soft:#806754;
+  --accent:#cf5326; --accent-2:#4a7a3a; --line:#ecd6bd;
+  --c0:#fdf8ee; --c1:#ef8c55; --c2:#f0c24d; --c3:#a3b86f; --c4:#d79b7c; --c5:#b98a8a;
+}
+:root{
+  --hand:'Neucha','Segoe Print','Comic Sans MS',cursive;
+  --head:'Rubik','Arial Black',system-ui,sans-serif;
+  --r-card:14px 6px 12px 7px/7px 12px 6px 14px;
+  --r-btn:255px 18px 225px 18px/18px 225px 18px 255px;
+  --r-col:24px 10px 20px 12px/12px 22px 10px 24px;
+  --r-dot:50% 44% 52% 46%/46% 52% 44% 50%;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  min-height:100vh; color:var(--ink); font-family:var(--hand); font-size:18px;
+  background-color:var(--paper);
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .22  0 0 0 0 .18  0 0 0 0 .14  0 0 0 .16 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  -webkit-font-smoothing:antialiased; transition:background-color .4s;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+button{font:inherit;color:inherit}
+.app{max-width:1680px;margin:0 auto;padding:12px clamp(12px,2.2vw,28px) 40px}
+
+/* рукописные рамки */
+.rough{position:relative}
+.rough::before{content:"";position:absolute;inset:0;border:2.3px solid var(--ink);border-radius:inherit;filter:url(#wobble);pointer-events:none}
+.rough::after{content:"";position:absolute;inset:3px -2px -1px 2px;border:1.2px solid var(--ink);opacity:.28;border-radius:inherit;pointer-events:none;transform:rotate(.3deg)}
+
+/* верхняя полоска */
+.topbar{position:relative;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:4px 0 10px;flex-wrap:wrap}
+.topbar::after{content:"";position:absolute;left:0;right:0;bottom:0;border-top:2.4px solid var(--ink);filter:url(#wobble)}
+.logo{font-family:var(--head);font-weight:800;font-size:19px;color:var(--accent);letter-spacing:.01em}
+.logo small{font-family:var(--hand);font-weight:400;color:var(--ink-soft);font-size:16px;margin-left:6px}
+.tright{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.seasons{display:flex;gap:2px}
+.seasons button{background:none;border:0;padding:3px 8px 6px;cursor:pointer;font-size:17px;position:relative;color:var(--ink-soft)}
+.seasons button:hover{color:var(--ink)}
+.seasons button.on{color:var(--ink)}
+.seasons button.on::after{content:"";position:absolute;left:5px;right:5px;bottom:1px;height:6px;border-bottom:2.6px solid var(--accent);border-radius:0 0 50% 50%/0 0 100% 100%;transform:rotate(-2deg)}
+.syncbtn{background:none;border:0;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:16px;color:var(--ink-soft);padding:3px 4px}
+.syncbtn:hover{color:var(--ink)}
+.sdot{width:11px;height:11px;border-radius:var(--r-dot);border:2px solid var(--ink);background:transparent;flex:none}
+.syncbtn[data-s="ok"] .sdot{background:var(--accent-2)}
+.syncbtn[data-s="saving"] .sdot,.syncbtn[data-s="pending"] .sdot{background:var(--c2)}
+.syncbtn[data-s="error"] .sdot,.syncbtn[data-s="auth"] .sdot{background:var(--accent)}
+
+/* шапка */
+.top{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,560px);gap:10px 24px;align-items:end;margin-top:14px}
+.top.noart{grid-template-columns:1fr}
+.top.noart .art{display:none}
+.kicker{font-family:var(--head);font-weight:600;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft)}
+h1{font-family:var(--head);font-weight:800;font-size:clamp(38px,5.6vw,80px);line-height:.92;margin:8px 0 18px;color:var(--accent);letter-spacing:-.015em}
+.controls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.group{display:flex;gap:7px}
+.btn{position:relative;background:var(--sheet);border:2px solid var(--ink);border-radius:var(--r-btn);padding:5px 16px 6px;font-size:18px;line-height:1.1;cursor:pointer;box-shadow:2px 3px 0 var(--ink);transition:transform .08s,box-shadow .08s,background .15s}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:3px 4px 0 var(--ink)}
+.btn:active{transform:translate(2px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.on{background:var(--accent);color:var(--sheet)}
+.btn.icon{padding:4px 13px 6px;font-family:var(--head);font-weight:800}
+.art svg{display:block;width:100%;height:auto;overflow:visible}
+
+/* потом */
+.later{margin:24px 0 18px;padding:12px 14px 14px;border:2px dashed color-mix(in srgb,var(--ink) 55%,transparent);border-radius:var(--r-col);display:flex;gap:16px;align-items:flex-start;background:color-mix(in srgb,var(--sheet) 55%,transparent)}
+.lhead{display:flex;align-items:center;gap:10px;font-family:var(--head);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:14px;padding-top:4px;white-space:nowrap}
+.list.row{flex:1;display:flex;flex-wrap:wrap;gap:10px 12px;min-height:42px;align-items:flex-start}
+.list.row>.card{width:min(250px,100%)}
+.list.row:empty::before{content:"дела без дня. потом перетащишь в нужный";color:var(--ink-soft);font-size:16px;padding-top:7px}
+
+/* неделя */
+.week{display:grid;grid-template-columns:repeat(7,minmax(176px,1fr));gap:12px;overflow-x:auto;padding:4px 4px 12px;margin:0 -4px;scrollbar-width:thin}
+.day{
+  display:flex;flex-direction:column;min-height:64vh;padding:12px 10px 16px;border-radius:var(--r-col);
+  background:
+    linear-gradient(var(--sheet),var(--sheet)) top/100% 80px no-repeat,
+    linear-gradient(90deg,transparent 21px,color-mix(in srgb,var(--accent) 32%,transparent) 21px 22.5px,transparent 22.5px),
+    repeating-linear-gradient(180deg,var(--sheet) 0 33px,var(--line) 33px 34.5px);
+  background-color:var(--sheet);
+}
+.day.weekend{--sheet:var(--sheet-2)}
+.dhead{display:flex;justify-content:space-between;align-items:flex-start;height:60px;margin-bottom:12px;padding-left:16px}
+.dname{font-family:var(--head);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+.dnum{font-size:38px;line-height:1;margin-top:3px;position:relative;display:inline-block}
+.dmon{font-size:16px;color:var(--ink-soft);margin-left:6px}
+.today .dname{color:var(--accent)}
+.today .dmon{margin-left:14px}
+.today .dnum::after,.mcell.today .mnum::after{content:"";position:absolute;inset:-5px -10px -3px -10px;border:2.6px solid var(--accent);border-radius:52% 46% 50% 48%/50% 54% 46% 50%;transform:rotate(-7deg);pointer-events:none}
+.add{flex:none;width:32px;height:32px;border:2px solid var(--ink);background:var(--sheet);border-radius:var(--r-dot);cursor:pointer;font-family:var(--head);font-weight:800;font-size:20px;line-height:1;display:grid;place-items:center;box-shadow:1.5px 2px 0 var(--ink);padding:0 0 2px}
+.add:hover{background:var(--accent);color:var(--sheet)}
+.list.col{flex:1;display:flex;flex-direction:column;gap:10px;min-height:120px;padding-bottom:30px}
+
+/* карточка */
+.card{
+  position:relative;background:var(--c,var(--c0));padding:8px 28px 9px 36px;border-radius:var(--r-card);
+  font-size:18px;line-height:1.22;box-shadow:2px 3px 0 color-mix(in srgb,var(--ink) 85%,transparent);
+  transform:rotate(var(--r,0deg));cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+  transition:background .2s;
+}
+.card .txt{white-space:pre-wrap;word-break:break-word;min-height:1.22em;outline:none;cursor:text}
+.card.done{background:color-mix(in srgb,var(--c,var(--c0)) 45%,var(--sheet))}
+.card.done .txt{text-decoration:line-through;text-decoration-color:var(--accent);text-decoration-thickness:2px;opacity:.55}
+.card.editing{cursor:default;box-shadow:3px 4px 0 var(--accent)}
+.card .txt[contenteditable="true"]{user-select:text;-webkit-user-select:text}
+.card .txt:empty::before{content:"что нужно сделать?";color:var(--ink-soft);opacity:.7}
+.chk{position:absolute;left:9px;top:9px;width:20px;height:20px;padding:0;border:2px solid var(--ink);background:var(--sheet);border-radius:var(--r-dot);cursor:pointer;display:grid;place-items:center}
+.chk svg{width:14px;height:14px;opacity:0}
+.chk path{stroke:var(--sheet)}
+.done .chk{background:var(--ink)}
+.done .chk svg{opacity:1}
+.more{position:absolute;right:3px;top:6px;width:24px;height:24px;border:0;background:none;padding:0;cursor:pointer;opacity:0;transition:opacity .15s;color:var(--ink)}
+.card:hover .more,.more:focus-visible{opacity:.7}
+@media (hover:none){.more{opacity:.5}}
+.ghost{position:fixed!important;z-index:999;pointer-events:none;margin:0;transform:rotate(2.5deg) scale(1.04)!important;box-shadow:6px 9px 0 color-mix(in srgb,var(--ink) 28%,transparent)!important;cursor:grabbing}
+.ph{border:2px dashed var(--ink-soft);border-radius:var(--r-card);opacity:.75;background:color-mix(in srgb,var(--sheet) 60%,transparent);flex:none}
+.list.row>.ph{width:min(250px,100%)}
+.src{opacity:.3}
+.hl{box-shadow:inset 0 0 0 3px color-mix(in srgb,var(--accent) 40%,transparent)}
+body.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
+body.dragging .week{scroll-snap-type:none!important}
+
+/* поповер */
+.pop{position:fixed;z-index:1000;background:var(--sheet);padding:12px 12px 8px;border-radius:16px 8px 14px 9px/9px 14px 8px 16px;box-shadow:3px 4px 0 var(--ink);min-width:214px}
+.sw{display:flex;gap:7px;margin-bottom:8px}
+.sw button{width:28px;height:28px;border-radius:var(--r-dot);border:2px solid var(--ink);background:var(--c);cursor:pointer;padding:0}
+.sw button.on{box-shadow:0 0 0 3px var(--sheet),0 0 0 5px var(--ink)}
+.pop .act{display:block;width:100%;text-align:left;background:none;border:0;padding:6px 6px;font-size:17px;cursor:pointer;border-radius:8px}
+.pop .act:hover{background:color-mix(in srgb,var(--ink) 8%,transparent)}
+.pop .act.del{color:var(--accent)}
+
+/* месяц */
+.mwrap{margin-top:26px}
+.mhead{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));font-family:var(--head);font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);padding:0 0 8px}
+.mhead div{padding-left:10px}
+.mbody{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(122px,auto);background:var(--sheet)}
+.mlines{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.mcell{position:relative;padding:8px 10px 10px;min-width:0;cursor:pointer}
+.mcell.out{background:color-mix(in srgb,var(--paper) 55%,transparent)}
+.mcell.out .mnum{opacity:.35}
+.mcell:hover{background:color-mix(in srgb,var(--c2) 18%,transparent)}
+.mnum{display:block;margin-left:auto;font-size:26px;line-height:1;position:relative;width:max-content}
+.chips{display:flex;flex-direction:column;gap:5px;margin-top:7px}
+.chip{position:relative;font-size:15px;line-height:1.15;padding:3px 7px 4px;border:1.7px solid var(--ink);background:var(--c,var(--c0));border-radius:9px 4px 8px 5px/5px 8px 4px 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.chip.done{text-decoration:line-through;text-decoration-color:var(--accent);opacity:.55}
+.moren{font-size:14px;color:var(--ink-soft);padding-left:3px}
+.dots{display:none;gap:4px;flex-wrap:wrap;margin-top:6px}
+.dots i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--ink);background:var(--c)}
+.dots i.done{opacity:.35}
+
+/* анимации зума */
+@keyframes zoomOut{from{opacity:0;transform:scale(1.07)}to{opacity:1;transform:none}}
+@keyframes zoomIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:none}}
+@keyframes slideL{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+#board.a-out{animation:zoomOut .32s ease-out}
+#board.a-in{animation:zoomIn .32s ease-out}
+#board.a-next{animation:slideL .25s ease-out}
+#board.a-prev{animation:slideR .25s ease-out}
+
+/* диалог */
+dialog.dlg{border:0;padding:22px 22px 16px;background:var(--sheet);color:var(--ink);border-radius:var(--r-col);width:min(460px,92vw);box-shadow:4px 5px 0 var(--ink);overflow:visible}
+dialog::backdrop{background:rgba(30,35,50,.35)}
+.dlg h2{font-family:var(--head);font-weight:800;color:var(--accent);margin:0 0 6px;font-size:26px}
+.dlg p{margin:0 0 12px;font-size:16px;color:var(--ink-soft);line-height:1.3}
+.dlg label{display:block;font-size:15px;color:var(--ink-soft);margin:10px 0 0}
+.dlg input{display:block;width:100%;margin-top:3px;font:inherit;font-size:17px;color:var(--ink);padding:7px 11px;border:2px solid var(--ink);border-radius:var(--r-card);background:var(--paper);outline:none}
+.dlg input:focus{box-shadow:2px 3px 0 var(--accent)}
+.dlg .err{color:var(--accent);min-height:1.3em;margin:10px 0 0;font-size:16px}
+.dlg .row{display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px}
+
+.hint{margin-top:22px;text-align:center;color:var(--ink-soft);font-size:15px}
+
+/* телефон */
+@media (max-width:760px){
+  .tright{gap:6px 10px}
+  .seasons button{font-size:15px;padding:3px 6px 6px}
+  .syncbtn{font-size:14px}
+  .top{grid-template-columns:1fr}
+  .art{order:-1;margin:0 -4px}
+  h1{font-size:42px;margin-bottom:14px}
+  .week{display:flex;scroll-snap-type:x mandatory;margin:0 calc(-1*clamp(12px,2.2vw,28px));padding:4px clamp(12px,2.2vw,28px) 14px;scrollbar-width:none}
+  .week::-webkit-scrollbar{display:none}
+  .day{flex:0 0 84%;scroll-snap-align:center;min-height:56vh}
+  .later{flex-direction:column;gap:8px}
+  .list.row>.card,.list.row>.ph{width:100%}
+  .mbody{grid-auto-rows:minmax(66px,auto)}
+  .mcell{padding:5px 5px 7px}
+  .mnum{font-size:19px}
+  .mhead{font-size:11px;letter-spacing:.06em}
+  .mhead div{padding-left:5px}
+  .chips{display:none}
+  .dots{display:flex}
+  .hint{display:none}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="wobble" x="-3%" y="-3%" width="106%" height="106%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7"/>
+    <feDisplacementMap in="SourceGraphic" scale="3.5" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
+<div class="app">
+  <nav class="topbar">
+    <div class="logo">моя доска<small id="seasonName"></small></div>
+    <div class="tright">
+      <div class="seasons" id="seasons">
+        <button data-season="winter">зима</button>
+        <button data-season="spring">весна</button>
+        <button data-season="summer">лето</button>
+        <button data-season="autumn">осень</button>
+      </div>
+      <button class="syncbtn" id="syncBtn" data-s="local"><span class="sdot"></span><span class="stext">только на этом устройстве</span></button>
+    </div>
+  </nav>
+
+  <header class="top" id="top">
+    <div>
+      <div class="kicker" id="kicker"></div>
+      <h1 id="title"></h1>
+      <div class="controls">
+        <div class="group">
+          <button class="btn icon" data-nav="prev" aria-label="Назад">‹</button>
+          <button class="btn" data-nav="today">сегодня</button>
+          <button class="btn icon" data-nav="next" aria-label="Вперёд">›</button>
+        </div>
+        <div class="group">
+          <button class="btn" data-view="week">неделя</button>
+          <button class="btn" data-view="month">месяц</button>
+        </div>
+      </div>
+    </div>
+    <div class="art" id="art"></div>
+  </header>
+
+  <main id="board"></main>
+  <div class="hint">карточки таскаются мышкой · ctrl + колёсико или щипок на тачпаде переключают неделю и месяц</div>
+</div>
+
+<dialog class="dlg rough" id="syncDlg">
+  <h2>синхронизация</h2>
+  <p>Задачи лежат файлом в твоём репозитории на GitHub. Введи это один раз на каждом ноуте и телефоне, дальше всё само.</p>
+  <label>репозиторий<input id="fRepo" placeholder="sasha/second-brain" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+  <label>файл с задачами<input id="fPath" value="dashboard/board.json" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+  <label>ветка<input id="fBranch" value="main" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+  <label>токен GitHub<input id="fToken" type="password" placeholder="github_pat_…" autocomplete="off"></label>
+  <div class="err" id="fErr"></div>
+  <div class="row">
+    <button class="btn" id="fOff" type="button">отключить</button>
+    <button class="btn" id="fClose" type="button">закрыть</button>
+    <button class="btn on" id="fSave" type="button">подключить</button>
+  </div>
+</dialog>
+
+<script>
+(() => {
+"use strict";
+/* ================= утилиты ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const pad = n => String(n).padStart(2, "0");
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parse = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const addDays = (d, n) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; };
+const startOfWeek = d => addDays(d, -((d.getDay() + 6) % 7));
+const todayISO = () => iso(new Date());
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const store = {
+  get(k, def) { try { const v = localStorage.getItem(k); return v == null ? def : JSON.parse(v); } catch { return def; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem(k); } catch {} }
+};
+function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hash(s) { let h = 2166136261; for (const ch of s) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+
+const MON_NOM = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+const MON_GEN = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+const MON_SHORT = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+const DAYS = ["понедельник","вторник","среда","четверг","пятница","суббота","воскресенье"];
+const DAYS_SHORT = ["пн","вт","ср","чт","пт","сб","вс"];
+const SEASON_NAMES = { winter: "зимняя", spring: "весенняя", summer: "летняя", autumn: "осенняя" };
+const COLOR_NAMES = {
+  winter: ["снег","снегирь","синица","ёлка","лёд","слива"],
+  spring: ["молоко","пион","одуванчик","листик","небо","сирень"],
+  summer: ["песок","арбуз","солнце","мята","море","фламинго"],
+  autumn: ["сливки","тыква","горчица","олива","глина","вино"]
+};
+
+/* ================= данные ================= */
+let data = store.get("board.data", null);
+if (!data || !Array.isArray(data.cards)) {
+  const t = new Date();
+  const mk = (text, off, color, done = false) => ({ id: uid(), text, date: off == null ? null : iso(addDays(t, off)), order: 1000 + Math.random(), color, done, updatedAt: Date.now(), seed: true });
+  data = { v: 1, cards: [
+    mk("Повесить гирлянду на окно", 0, 1),
+    mk("Купить свечи и мандарины", 0, 2, true),
+    mk("Позвонить маме", 1, 3),
+    mk("Забрать посылку", 2, 4),
+    mk("Придумать подарки к Новому году", null, 5)
+  ]};
+}
+const ui = Object.assign({ view: "week", season: "winter" }, store.get("board.ui", {}));
+let anchor = new Date();
+
+const live = () => data.cards.filter(c => !c.deleted);
+const byId = id => data.cards.find(c => c.id === id);
+const cardsFor = date => live().filter(c => (c.date || null) === date).sort((a, b) => a.order - b.order);
+const touch = c => { c.updatedAt = Date.now(); delete c.seed; };
+const saveLocal = () => store.set("board.data", data);
+function commit(rerender = true) { saveLocal(); sync.schedule(); if (rerender) safeRender(); }
+const rot = id => ((hash(id) % 180) / 100 - 0.9).toFixed(2);
+
+/* ================= отрисовка ================= */
+const board = $("#board");
+let editing = null, pendingRender = false;
+
+function safeRender() { if (editing || (drag && drag.active)) { pendingRender = true; return; } render(); }
+
+function render(anim) {
+  pendingRender = false;
+  closePop();
+  $$("[data-view]").forEach(b => b.classList.toggle("on", b.dataset.view === ui.view));
+  if (ui.view === "week") renderWeek(); else renderMonth();
+  if (anim) { board.className = ""; void board.offsetWidth; board.className = "a-" + anim; }
+}
+
+const CHECK = `<svg viewBox="0 0 20 20"><path d="M4.5 10.5 L8.5 14.5 L15.5 5.5" fill="none" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const DOTS = `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12.5" r="2"/><circle cx="12" cy="11.6" r="2"/><circle cx="18.5" cy="12.3" r="2"/></svg>`;
+
+function cardHTML(c) {
+  return `<article class="card rough${c.done ? " done" : ""}" data-id="${c.id}" style="--c:var(--c${c.color || 0});--r:${rot(c.id)}deg">
+    <button class="chk" aria-label="Готово">${CHECK}</button>
+    <div class="txt">${esc(c.text)}</div>
+    <button class="more" aria-label="Цвет и действия">${DOTS}</button>
+  </article>`;
+}
+
+function renderWeek() {
+  const start = startOfWeek(anchor), sISO = iso(start), tISO = todayISO();
+  const days = [...Array(7)].map((_, i) => addDays(start, i));
+  const weekCards = days.flatMap(d => cardsFor(iso(d)));
+  const doneN = weekCards.filter(c => c.done).length;
+  $("#kicker").textContent = `неделя · ${weekCards.length ? `сделано ${doneN} из ${weekCards.length}` : start.getFullYear()}`;
+  const e = days[6];
+  $("#title").textContent = start.getMonth() === e.getMonth()
+    ? `${start.getDate()}–${e.getDate()} ${MON_GEN[e.getMonth()]}`
+    : `${start.getDate()} ${MON_GEN[start.getMonth()]} – ${e.getDate()} ${MON_GEN[e.getMonth()]}`;
+
+  const oldWeek = $(".week");
+  const keepScroll = oldWeek && board.dataset.ws === sISO ? oldWeek.scrollLeft : null;
+
+  const later = cardsFor(null);
+  board.innerHTML = `
+    <section class="later">
+      <div class="lhead">потом <button class="add" data-add="later" aria-label="Добавить в потом">+</button></div>
+      <div class="list row" data-drop="later">${later.map(cardHTML).join("")}</div>
+    </section>
+    <div class="week">
+      ${days.map((d, i) => {
+        const k = iso(d);
+        return `<section class="day rough${k === tISO ? " today" : ""}${i > 4 ? " weekend" : ""}">
+          <header class="dhead">
+            <div><div class="dname">${DAYS[i]}</div><div><span class="dnum">${d.getDate()}</span><span class="dmon">${MON_SHORT[d.getMonth()]}</span></div></div>
+            <button class="add" data-add="${k}" aria-label="Добавить">+</button>
+          </header>
+          <div class="list col" data-drop="${k}">${cardsFor(k).map(cardHTML).join("")}</div>
+        </section>`;
+      }).join("")}
+    </div>`;
+  board.dataset.ws = sISO;
+  const wk = $(".week");
+  if (keepScroll != null) wk.scrollLeft = keepScroll;
+  else if (wk.scrollWidth > wk.clientWidth + 4) {
+    const t = $(".day.today", wk) || $(".day", wk);
+    wk.scrollLeft = t.offsetLeft - wk.offsetLeft - (wk.clientWidth - t.offsetWidth) / 2;
+  }
+}
+
+function renderMonth() {
+  const y = anchor.getFullYear(), m = anchor.getMonth(), tISO = todayISO();
+  $("#kicker").textContent = `${y}`;
+  $("#title").textContent = MON_NOM[m];
+  const first = new Date(y, m, 1), gs = startOfWeek(first);
+  const dim = new Date(y, m + 1, 0).getDate();
+  const rows = Math.ceil((((first.getDay() + 6) % 7) + dim) / 7);
+  let cells = "";
+  for (let i = 0; i < rows * 7; i++) {
+    const d = addDays(gs, i), k = iso(d), list = cardsFor(k), show = list.slice(0, 4);
+    cells += `<div class="mcell${d.getMonth() !== m ? " out" : ""}${k === tISO ? " today" : ""}" data-drop="${k}" data-goto="${k}">
+      <span class="mnum">${d.getDate()}</span>
+      <div class="chips">${show.map(c => `<div class="chip${c.done ? " done" : ""}" data-id="${c.id}" style="--c:var(--c${c.color || 0})">${esc(c.text)}</div>`).join("")}${list.length > 4 ? `<div class="moren">ещё ${list.length - 4}</div>` : ""}</div>
+      <div class="dots">${list.slice(0, 8).map(c => `<i class="${c.done ? "done" : ""}" style="--c:var(--c${c.color || 0})"></i>`).join("")}</div>
+    </div>`;
+  }
+  board.innerHTML = `<div class="mwrap">
+    <div class="mhead">${DAYS_SHORT.map(d => `<div>${d}</div>`).join("")}</div>
+    <div class="mbody" data-rows="${rows}">${cells}<svg class="mlines" aria-hidden="true"></svg></div>
+  </div>`;
+  board.dataset.ws = "";
+  drawMonthLines();
+}
+
+function roughPath(x1, y1, x2, y2, rnd) {
+  const len = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1) / len, uy = (y2 - y1) / len;
+  const o1 = rnd() * 4, o2 = rnd() * 4;
+  x1 -= ux * o1; y1 -= uy * o1; x2 += ux * o2; y2 += uy * o2;
+  const n = Math.max(2, Math.round(len / 46)), pts = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n, j = (i === 0 || i === n) ? 0 : (rnd() - .5) * 2.8;
+    pts.push([x1 + (x2 - x1) * t - uy * j, y1 + (y2 - y1) * t + ux * j]);
+  }
+  let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
+    d += ` Q${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)}`;
+  }
+  const L = pts[pts.length - 1];
+  return d + ` L${L[0].toFixed(1)} ${L[1].toFixed(1)}`;
+}
+function drawMonthLines() {
+  const body = $(".mbody"); if (!body) return;
+  const svg = $(".mlines", body), W = body.clientWidth, H = body.clientHeight;
+  const cells = $$(".mcell", body), rows = +body.dataset.rows, rnd = mulberry(42);
+  const xs = cells.slice(0, 7).map(c => c.offsetLeft).concat(W);
+  const ys = [...Array(rows)].map((_, r) => cells[r * 7].offsetTop).concat(H);
+  let d = "";
+  xs.forEach(x => d += roughPath(x, 0, x, H, rnd));
+  ys.forEach(y => d += roughPath(0, y, W, y, rnd));
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = `<path d="${d}" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/>`;
+}
+new ResizeObserver(() => { if (ui.view === "month") drawMonthLines(); }).observe(board);
+
+/* ================= иллюстрация ================= */
+function winterArt() {
+  const ink = "#22304a", rnd = mulberry(11);
+  const S = `stroke="${ink}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"`;
+  // ветка ели
+  const P = [[124, 164], [210, 156], [320, 146], [480, 126]];
+  const bez = t => { const u = 1 - t; return [0, 1].map(i => u*u*u*P[0][i] + 3*u*u*t*P[1][i] + 3*u*t*t*P[2][i] + t*t*t*P[3][i]); };
+  const der = t => { const u = 1 - t; return [0, 1].map(i => 3*u*u*(P[1][i]-P[0][i]) + 6*u*t*(P[2][i]-P[1][i]) + 3*t*t*(P[3][i]-P[2][i])); };
+  let needles = "";
+  const needle = (x, y, a, len) => {
+    for (const side of [-1, 1]) {
+      const ang = a + side * (0.95 + rnd() * 0.4), l = len * (0.85 + rnd() * 0.3);
+      const col = rnd() < .5 ? "#2e5e4e" : "#4a7d5f";
+      needles += `<path d="M${x.toFixed(1)} ${y.toFixed(1)} L${(x + Math.cos(ang) * l).toFixed(1)} ${(y + Math.sin(ang) * l).toFixed(1)}" stroke="${col}"/>`;
+    }
+  };
+  for (let t = 0.03; t <= 1; t += 0.021) { const [x, y] = bez(t), [dx, dy] = der(t); needle(x, y, Math.atan2(dy, dx), t > .93 ? 13 : 20); }
+  const twig = (A, B, len) => { const a = Math.atan2(B[1] - A[1], B[0] - A[0]); for (let t = .08; t <= 1; t += .1) needle(A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t, a, len); return `M${A[0].toFixed(1)} ${A[1].toFixed(1)} L${B[0]} ${B[1]}`; };
+  const tw1 = twig(bez(.3), [262, 192], 15), tw2 = twig(bez(.66), [420, 170], 14);
+
+  // свечи
+  const candle = (x, w, top, body, stripe) => {
+    const cx = x + w / 2;
+    return `<circle cx="${cx}" cy="${top - 18}" r="24" fill="#f5c84a" opacity=".2"/>
+      <path d="M${x} ${top + 4} Q${cx} ${top - 3} ${x + w} ${top + 4} L${x + w} 222 L${x} 222 Z" fill="${body}" ${S}/>
+      ${stripe ? `<path d="M${x} ${top + 22} L${x + w} ${top + 12} M${x} ${top + 44} L${x + w} ${top + 34} M${x} ${top + 66} L${x + w} ${top + 56}" stroke="${stripe}" stroke-width="3.5"/>` : ""}
+      <path d="M${x + w * .62} ${top + 1} q3 9 0 15 q-4 2 -4 -5 z" fill="#fbf6ea" ${S} stroke-width="1.6"/>
+      <path d="M${cx} ${top} L${cx} ${top - 6}" stroke="${ink}" stroke-width="2"/>
+      <path d="M${cx} ${top - 33} C${cx + 10} ${top - 19} ${cx + 8} ${top - 6} ${cx} ${top - 6} C${cx - 8} ${top - 6} ${cx - 10} ${top - 19} ${cx} ${top - 33} Z" fill="#f3bf3f" ${S} stroke-width="2"/>
+      <path d="M${cx} ${top - 22} C${cx + 5} ${top - 15} ${cx + 4} ${top - 9} ${cx} ${top - 9} C${cx - 4} ${top - 9} ${cx - 5} ${top - 15} ${cx} ${top - 22} Z" fill="#e8742f"/>`;
+  };
+
+  // снегирь (смотрит вправо)
+  const bullfinch = `<g transform="translate(228 110)">
+    <path d="M-6 27 L-8 40 M8 27 L9 39" stroke="${ink}" stroke-width="3" stroke-linecap="round"/>
+    <path d="M-30 6 L-66 18 L-61 30 L-25 21 Z" fill="#26262f" ${S}/>
+    <clipPath id="bfB"><ellipse cx="0" cy="0" rx="40" ry="31"/></clipPath>
+    <ellipse cx="0" cy="0" rx="40" ry="31" fill="#7f8a9c"/>
+    <ellipse cx="15" cy="12" rx="36" ry="26" fill="#e0603f" clip-path="url(#bfB)"/>
+    <ellipse cx="0" cy="0" rx="40" ry="31" fill="none" ${S}/>
+    <path d="M-35 -8 C-18 -20 8 -14 16 0 C8 14 -16 18 -37 10 C-41 4 -39 -4 -35 -8 Z" fill="#2b2b35" ${S}/>
+    <path d="M-27 0 C-14 -4 0 -2 10 4" stroke="#ece6da" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <clipPath id="bfH"><circle cx="27" cy="-20" r="20"/></clipPath>
+    <circle cx="27" cy="-20" r="20" fill="#e0603f"/>
+    <path d="M-2 -32 L14 -32 C12 -20 10 -10 5 0 L-2 0 Z" fill="#7f8a9c" clip-path="url(#bfH)"/>
+    <path d="M0 -50 L62 -50 L62 -16 C52 -17 44 -22 36 -21 C26 -19 16 -25 6 -29 Z" fill="#202028" clip-path="url(#bfH)"/>
+    <circle cx="27" cy="-20" r="20" fill="none" ${S}/>
+    <path d="M44 -22 C52 -21 57 -17 55 -13 C51 -11 47 -11 44 -12 Z" fill="#1e1e26" ${S} stroke-width="2"/>
+    <circle cx="36.6" cy="-25.6" r="1.6" fill="#fff"/>
+  </g>`;
+
+  // синица (зеркально, смотрит влево)
+  const tit = `<g transform="translate(384 104) scale(-.86 .86)">
+    <path d="M-6 26 L-8 38 M8 26 L9 37" stroke="${ink}" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M-30 4 L-64 14 L-60 25 L-26 18 Z" fill="#6f88a6" ${S}/>
+    <clipPath id="ttB"><ellipse cx="0" cy="0" rx="38" ry="30"/></clipPath>
+    <ellipse cx="0" cy="0" rx="38" ry="30" fill="#8ea65e"/>
+    <ellipse cx="13" cy="12" rx="34" ry="25" fill="#f2c84b" clip-path="url(#ttB)"/>
+    <path d="M31 -10 C27 4 19 17 8 28 L1 26 C11 15 19 2 22 -10 Z" fill="#1f1f27" clip-path="url(#ttB)"/>
+    <ellipse cx="0" cy="0" rx="38" ry="30" fill="none" ${S}/>
+    <path d="M-35 -8 C-18 -20 8 -14 15 0 C8 13 -16 17 -37 10 C-41 4 -39 -4 -35 -8 Z" fill="#7d98b6" ${S}/>
+    <path d="M-27 0 C-14 -4 0 -2 9 4" stroke="#f4f0e6" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+    <clipPath id="ttH"><circle cx="27" cy="-20" r="18"/></clipPath>
+    <circle cx="27" cy="-20" r="18" fill="#1f1f27"/>
+    <ellipse cx="30" cy="-14" rx="11" ry="7.5" fill="#f8f5ee" clip-path="url(#ttH)"/>
+    <circle cx="27" cy="-20" r="18" fill="none" ${S}/>
+    <path d="M43 -22 L53 -19 L43 -15 Z" fill="#2a2a33" ${S} stroke-width="1.8"/>
+    <circle cx="35.6" cy="-25" r="1.5" fill="#fff"/>
+  </g>`;
+
+  // подарки
+  let dots = "";
+  [[484, 196], [538, 174], [490, 170], [530, 204], [542, 196], [486, 208]].forEach(([x, y]) => dots += `<circle cx="${x}" cy="${y}" r="2.6" fill="#f4ead6"/>`);
+  const gifts = `
+    <rect x="477" y="160" width="72" height="62" fill="#c9442f" ${S}/>${dots}
+    <rect x="477" y="183" width="72" height="10" fill="#f4ead6" ${S} stroke-width="1.8"/>
+    <rect x="507" y="160" width="12" height="62" fill="#f4ead6" ${S} stroke-width="1.8"/>
+    <rect x="471" y="146" width="84" height="17" rx="2" fill="#d8563f" ${S}/>
+    <rect x="507" y="146" width="12" height="17" fill="#f4ead6" ${S} stroke-width="1.8"/>
+    <path d="M513 146 C496 126 482 140 499 149 Z M513 146 C530 126 544 140 527 149 Z" fill="#f4ead6" ${S} stroke-width="2"/>
+    <circle cx="513" cy="146" r="4.5" fill="#f4ead6" ${S} stroke-width="2"/>
+    <rect x="542" y="186" width="52" height="36" fill="#2e5e4e" ${S}/>
+    <rect x="563" y="186" width="9" height="36" fill="#f2c84b" ${S} stroke-width="1.6"/>
+    <rect x="538" y="175" width="60" height="14" rx="2" fill="#3a6e5c" ${S}/>
+    <rect x="563" y="175" width="9" height="14" fill="#f2c84b" ${S} stroke-width="1.6"/>
+    <path d="M567 175 C556 162 546 171 558 177 Z M567 175 C578 162 588 171 576 177 Z" fill="#f2c84b" ${S} stroke-width="1.8"/>`;
+
+  // снежинки
+  let flakes = "";
+  [[152, 80, 1], [302, 74, .8], [446, 86, 1], [560, 104, .8], [102, 96, .7], [590, 70, .9], [470, 66, .7], [176, 196, .8], [334, 196, 1], [408, 72, .6], [260, 64, .7], [128, 202, .6]].forEach(([x, y, s]) => {
+    const r = 6 * s;
+    flakes += `<g stroke="#8fa9c6" stroke-width="1.8" stroke-linecap="round"><path d="M${x - r} ${y} L${x + r} ${y} M${x - r * .5} ${y - r * .87} L${x + r * .5} ${y + r * .87} M${x - r * .5} ${y + r * .87} L${x + r * .5} ${y - r * .87}"/></g>`;
+  });
+
+  return `<svg viewBox="0 52 600 172" role="img" aria-label="Снегирь и синица на еловой ветке, свечи и подарки">
+    <defs><filter id="artF" x="-2%" y="-2%" width="104%" height="104%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="3" result="w"/>
+      <feDisplacementMap in="SourceGraphic" in2="w" scale="2.6" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="1" seed="9" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 .12  0 0 0 0 .1  0 0 0 0 .1  0 0 0 -2.4 1.18" result="gm"/>
+      <feComposite in="gm" in2="d" operator="in" result="gi"/>
+      <feMerge><feMergeNode in="d"/><feMergeNode in="gi"/></feMerge>
+    </filter></defs>
+    <g filter="url(#artF)">
+      ${flakes}
+      ${candle(14, 23, 120, "#f6ead2", null)}
+      ${candle(45, 25, 142, "#d6553f", "#f4d9cc")}
+      ${candle(78, 19, 162, "#f6ead2", null)}
+      <g stroke-width="3.2" stroke-linecap="round">${needles}</g>
+      <path d="M${P[0][0]} ${P[0][1]} C${P[1].join(" ")} ${P[2].join(" ")} ${P[3].join(" ")}" stroke="#6b4a35" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+      <path d="${tw1} ${tw2}" stroke="#6b4a35" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+      ${bullfinch}
+      ${tit}
+      ${gifts}
+      <path d="M-4 216 C40 203 82 210 122 210 S220 200 282 208 S400 213 462 207 S560 201 604 210 L604 230 L-4 230 Z" fill="#fbf9f4" ${S}/>
+    </g>
+  </svg>`;
+}
+
+function applySeason() {
+  document.documentElement.dataset.season = ui.season;
+  $$("#seasons button").forEach(b => b.classList.toggle("on", b.dataset.season === ui.season));
+  $("#seasonName").textContent = SEASON_NAMES[ui.season];
+  const art = ui.season === "winter" ? winterArt() : "";
+  $("#art").innerHTML = art;
+  $("#top").classList.toggle("noart", !art);
+  const meta = $('meta[name="theme-color"]');
+  if (meta) meta.content = getComputedStyle(document.documentElement).getPropertyValue("--paper").trim();
+}
+
+/* ================= редактирование ================= */
+function placeCaretEnd(el) {
+  const r = document.createRange(); r.selectNodeContents(el); r.collapse(false);
+  const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+}
+function startEdit(txt) {
+  if (editing) finishEdit();
+  const card = txt.closest(".card"), id = card.dataset.id;
+  editing = { id, el: txt, card, orig: txt.textContent };
+  txt.contentEditable = "true";
+  card.classList.add("editing");
+  txt.focus();
+  placeCaretEnd(txt);
+  txt.addEventListener("blur", finishEdit, { once: true });
+}
+function finishEdit() {
+  if (!editing) return;
+  const { id, el, card } = editing; editing = null;
+  el.contentEditable = "false"; card.classList.remove("editing");
+  const text = el.innerText.replace(/ /g, " ").replace(/\n{3,}/g, "\n\n").trim();
+  const c = byId(id);
+  if (c) {
+    if (!text) {
+      if (!c.text) data.cards = data.cards.filter(x => x !== c);
+      else { c.deleted = true; c.text = ""; touch(c); }
+      card.remove();
+      commit(false);
+    } else if (text !== c.text) {
+      c.text = text; touch(c); el.textContent = text; commit(false);
+    } else el.textContent = text;
+  }
+  if (pendingRender) render();
+}
+function addCard(date) {
+  if (editing) finishEdit();
+  const list = cardsFor(date);
+  const c = { id: uid(), text: "", date, order: list.length ? list[list.length - 1].order + 1 : 1000, color: 0, done: false, updatedAt: Date.now() };
+  data.cards.push(c);
+  render();
+  const txt = $(`[data-id="${c.id}"] .txt`);
+  if (txt) { txt.scrollIntoView({ block: "nearest", inline: "nearest" }); startEdit(txt); }
+}
+
+/* ================= поповер ================= */
+let pop = null;
+function closePop() { if (pop) { pop.remove(); pop = null; } }
+function openPop(card, btn) {
+  closePop();
+  const c = byId(card.dataset.id); if (!c) return;
+  const names = COLOR_NAMES[ui.season];
+  pop = document.createElement("div");
+  pop.className = "pop rough";
+  pop.dataset.for = c.id;
+  pop.innerHTML = `<div class="sw">${[0,1,2,3,4,5].map(i => `<button data-color="${i}" class="${(c.color || 0) === i ? "on" : ""}" style="--c:var(--c${i})" title="${names[i]}" aria-label="${names[i]}"></button>`).join("")}</div>
+    ${c.date ? `<button class="act" data-act="later">убрать в «потом»</button>` : `<button class="act" data-act="today">на сегодня</button>`}
+    ${c.date && c.date !== todayISO() ? `<button class="act" data-act="today">перенести на сегодня</button>` : ""}
+    <button class="act" data-act="tomorrow">перенести на завтра</button>
+    <button class="act del" data-act="del">удалить</button>`;
+  document.body.appendChild(pop);
+  const r = btn.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+  let left = Math.min(r.right - pw + 8, innerWidth - pw - 10); left = Math.max(10, left);
+  let top = r.bottom + 6; if (top + ph > innerHeight - 10) top = Math.max(10, r.top - ph - 6);
+  pop.style.left = left + "px"; pop.style.top = top + "px";
+}
+function popAction(act, c) {
+  const moveTo = date => { const l = cardsFor(date).filter(x => x !== c); c.date = date; c.order = l.length ? l[l.length - 1].order + 1 : 1000; };
+  if (act === "del") { c.deleted = true; c.text = ""; }
+  else if (act === "later") moveTo(null);
+  else if (act === "today") moveTo(todayISO());
+  else if (act === "tomorrow") moveTo(iso(addDays(new Date(), 1)));
+  touch(c); commit();
+}
+
+/* ================= перетаскивание ================= */
+let drag = null, lastDragEnd = 0;
+document.addEventListener("pointerdown", e => {
+  if (e.button !== 0) return;
+  if (!e.target.closest(".pop")) closePop();
+  const el = e.target.closest("[data-id]");
+  if (!el || e.target.closest(".chk,.more,[contenteditable='true']")) return;
+  drag = { id: el.dataset.id, el, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, active: false, touch: e.pointerType !== "mouse", timer: null, zone: null };
+  if (drag.touch) drag.timer = setTimeout(() => { if (drag && !drag.active) beginDrag(); }, 300);
+});
+document.addEventListener("pointermove", e => {
+  if (!drag) return;
+  drag.x = e.clientX; drag.y = e.clientY;
+  if (!drag.active) {
+    const dist = Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0);
+    if (!drag.touch && dist > 5) beginDrag();
+    else if (drag.touch && dist > 10) { clearTimeout(drag.timer); drag = null; }
+    return;
+  }
+  moveGhost(); updateTarget();
+});
+document.addEventListener("pointerup", () => { if (!drag) return; clearTimeout(drag.timer); if (drag.active) endDrag(); drag = null; });
+document.addEventListener("pointercancel", () => { if (!drag) return; clearTimeout(drag.timer); if (drag.active) endDrag(true); drag = null; });
+document.addEventListener("contextmenu", e => { if (e.target.closest("[data-id]") && !e.target.closest("[contenteditable='true']")) e.preventDefault(); });
+
+function beginDrag() {
+  if (editing) finishEdit();
+  closePop();
+  const el = drag.el, r = el.getBoundingClientRect();
+  drag.active = true;
+  drag.dx = drag.x0 - r.left; drag.dy = drag.y0 - r.top;
+  const g = el.cloneNode(true);
+  g.classList.add("ghost"); g.style.width = r.width + "px"; g.style.height = r.height + "px";
+  document.body.appendChild(g); drag.ghost = g;
+  if (el.classList.contains("card")) {
+    const ph = document.createElement("div"); ph.className = "ph"; ph.style.height = r.height + "px";
+    el.parentNode.insertBefore(ph, el); el.style.display = "none"; drag.ph = ph;
+    drag.zone = ph.parentNode;
+  } else { el.classList.add("src"); drag.zone = el.closest("[data-drop]"); }
+  document.body.classList.add("dragging");
+  if (navigator.vibrate) try { navigator.vibrate(12); } catch {}
+  moveGhost(); updateTarget(); requestAnimationFrame(autoScroll);
+}
+function moveGhost() { drag.ghost.style.left = (drag.x - drag.dx) + "px"; drag.ghost.style.top = (drag.y - drag.dy) + "px"; }
+function hlOf(zone) { return zone && (zone.closest(".day,.mcell,.later")); }
+function updateTarget() {
+  const under = document.elementFromPoint(drag.x, drag.y);
+  const zone = under && under.closest("[data-drop]");
+  if (!zone) return;
+  if (zone !== drag.zone) { const o = hlOf(drag.zone); if (o) o.classList.remove("hl"); drag.zone = zone; }
+  const h = hlOf(zone); if (h) h.classList.add("hl");
+  if (drag.ph && zone.classList.contains("list")) {
+    const items = $$(":scope > [data-id]", zone).filter(n => n !== drag.el);
+    let before = null;
+    for (const n of items) {
+      const r = n.getBoundingClientRect();
+      if (zone.classList.contains("row")) { if (drag.y < r.top || (drag.y <= r.bottom && drag.x < r.left + r.width / 2)) { before = n; break; } }
+      else if (drag.y < r.top + r.height / 2) { before = n; break; }
+    }
+    if (drag.ph.parentNode !== zone || drag.ph.nextElementSibling !== before) {
+      if (before) zone.insertBefore(drag.ph, before); else zone.appendChild(drag.ph);
+    }
+  }
+}
+function autoScroll() {
+  if (!drag || !drag.active) return;
+  const edge = 60; let vx = 0, vy = 0;
+  if (drag.y < edge) vy = -(edge - drag.y) / 3; else if (drag.y > innerHeight - edge) vy = (drag.y - innerHeight + edge) / 3;
+  if (vy) window.scrollBy(0, vy);
+  const wk = $(".week");
+  if (wk && wk.scrollWidth > wk.clientWidth) {
+    const r = wk.getBoundingClientRect();
+    if (drag.x < r.left + edge) vx = -(r.left + edge - drag.x) / 2.5; else if (drag.x > r.right - edge) vx = (drag.x - r.right + edge) / 2.5;
+    if (vx) wk.scrollLeft += vx;
+  }
+  if (vx || vy) updateTarget();
+  requestAnimationFrame(autoScroll);
+}
+function endDrag(cancel) {
+  const { ghost, ph, el, zone } = drag;
+  ghost.remove(); document.body.classList.remove("dragging");
+  const h = hlOf(zone); if (h) h.classList.remove("hl");
+  lastDragEnd = Date.now();
+  const c = byId(drag.id);
+  drag.active = false;
+  if (cancel || !c || !zone) { render(); return; }
+  const key = zone.dataset.drop, date = key === "later" ? null : key;
+  let order;
+  if (ph && ph.parentNode === zone) {
+    const sib = (n, dir) => { n = n[dir]; while (n && (!n.dataset || !n.dataset.id || n === el)) n = n[dir]; return n; };
+    const p = sib(ph, "previousElementSibling"), n = sib(ph, "nextElementSibling");
+    const po = p ? byId(p.dataset.id).order : null, no = n ? byId(n.dataset.id).order : null;
+    order = po == null && no == null ? 1000 : po == null ? no - 1 : no == null ? po + 1 : (po + no) / 2;
+  } else {
+    const l = cardsFor(date).filter(x => x !== c);
+    order = l.length ? l[l.length - 1].order + 1 : 1000;
+  }
+  if ((c.date || null) !== date || c.order !== order) { c.date = date; c.order = order; touch(c); drag = null; commit(true); }
+  else { drag = null; render(); }
+}
+document.addEventListener("touchmove", e => {
+  if (drag && drag.active) { e.preventDefault(); return; }
+  if (pinch && e.touches.length === 2) {
+    e.preventDefault();
+    const r = tdist(e.touches) / pinch;
+    if (r < 0.72) { zoomTo("month"); pinch = null; } else if (r > 1.38) { zoomTo("week"); pinch = null; }
+  }
+}, { passive: false });
+
+/* ================= зум ================= */
+let pinch = null, lastZoom = 0, wheelAcc = 0;
+const tdist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+document.addEventListener("touchstart", e => { if (e.touches.length === 2) pinch = tdist(e.touches); }, { passive: true });
+document.addEventListener("touchend", () => { pinch = null; });
+window.addEventListener("wheel", e => {
+  if (!e.ctrlKey) return;
+  e.preventDefault();
+  wheelAcc += e.deltaY;
+  if (wheelAcc > 40) { zoomTo("month"); wheelAcc = 0; } else if (wheelAcc < -40) { zoomTo("week"); wheelAcc = 0; }
+  clearTimeout(window.__wt); window.__wt = setTimeout(() => wheelAcc = 0, 300);
+}, { passive: false });
+document.addEventListener("gesturestart", e => e.preventDefault());
+document.addEventListener("gesturechange", e => { e.preventDefault(); if (e.scale < .75) zoomTo("month"); else if (e.scale > 1.35) zoomTo("week"); });
+function zoomTo(v) { if (v === ui.view || Date.now() - lastZoom < 600) return; lastZoom = Date.now(); setView(v); }
+function setView(v) {
+  if (v === ui.view) return;
+  if (editing) finishEdit();
+  if (v === "week") {
+    const t = new Date();
+    if (t.getFullYear() === anchor.getFullYear() && t.getMonth() === anchor.getMonth()) anchor = t;
+  }
+  ui.view = v; store.set("board.ui", ui);
+  render(v === "month" ? "out" : "in");
+}
+
+/* ================= клики ================= */
+document.addEventListener("click", e => {
+  const t = e.target;
+  if (Date.now() - lastDragEnd < 250) return;
+  let b;
+  if ((b = t.closest("[data-nav]"))) {
+    const k = b.dataset.nav;
+    if (k === "today") { anchor = new Date(); render("in"); return; }
+    const s = k === "next" ? 1 : -1;
+    anchor = ui.view === "week" ? addDays(anchor, 7 * s) : new Date(anchor.getFullYear(), anchor.getMonth() + s, 1);
+    render(k); return;
+  }
+  if ((b = t.closest("[data-view]"))) { setView(b.dataset.view); return; }
+  if ((b = t.closest("[data-season]")) && b.closest("#seasons")) { ui.season = b.dataset.season; store.set("board.ui", ui); applySeason(); return; }
+  if ((b = t.closest("[data-add]"))) { addCard(b.dataset.add === "later" ? null : b.dataset.add); return; }
+  if ((b = t.closest("[data-color]")) && pop) {
+    const c = byId(pop.dataset.for); if (!c) return;
+    c.color = +b.dataset.color; touch(c);
+    const el = $(`.card[data-id="${c.id}"]`); if (el) el.style.setProperty("--c", `var(--c${c.color})`);
+    $$("[data-color]", pop).forEach(x => x.classList.toggle("on", x === b));
+    commit(false); return;
+  }
+  if ((b = t.closest("[data-act]")) && pop) { const c = byId(pop.dataset.for); closePop(); if (c) popAction(b.dataset.act, c); return; }
+  if ((b = t.closest(".chk"))) {
+    const card = b.closest(".card"), c = byId(card.dataset.id);
+    c.done = !c.done; touch(c); card.classList.toggle("done", c.done); commit(false);
+    if (ui.view === "week") renderKickerOnly();
+    return;
+  }
+  if ((b = t.closest(".more"))) { const card = b.closest(".card"); if (pop && pop.dataset.for === card.dataset.id) closePop(); else openPop(card, b); return; }
+  if ((b = t.closest(".card .txt")) && b.contentEditable !== "true") { closePop(); startEdit(b); return; }
+  if ((b = t.closest("[data-goto]"))) { anchor = parse(b.dataset.goto); ui.view = "week"; store.set("board.ui", ui); render("in"); return; }
+  if (!t.closest(".pop")) closePop();
+});
+function renderKickerOnly() {
+  const start = startOfWeek(anchor);
+  const wc = [...Array(7)].flatMap((_, i) => cardsFor(iso(addDays(start, i))));
+  $("#kicker").textContent = `неделя · ${wc.length ? `сделано ${wc.filter(c => c.done).length} из ${wc.length}` : start.getFullYear()}`;
+}
+document.addEventListener("keydown", e => {
+  if (editing) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); editing.el.blur(); }
+    else if (e.key === "Escape") { editing.el.textContent = editing.orig; editing.el.blur(); }
+    return;
+  }
+  if (e.target.closest("input,textarea,dialog")) return;
+  if (e.key === "Escape") closePop();
+  if (e.key === "ArrowLeft") $('[data-nav="prev"]').click();
+  if (e.key === "ArrowRight") $('[data-nav="next"]').click();
+});
+document.addEventListener("paste", e => {
+  if (!editing) return;
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData("text/plain");
+  document.execCommand("insertText", false, text);
+});
+addEventListener("resize", () => closePop());
+addEventListener("scroll", () => closePop(), { passive: true });
+
+/* ================= синхронизация с GitHub ================= */
+const b64enc = s => { const b = new TextEncoder().encode(s); let bin = ""; for (let i = 0; i < b.length; i += 0x8000) bin += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return btoa(bin); };
+const b64dec = s => { const bin = atob(s.replace(/\s/g, "")); const b = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i); return new TextDecoder().decode(b); };
+const canon = d => JSON.stringify(d.cards.map(c => [c.id, c.updatedAt || 0]).sort((a, b) => a[0] < b[0] ? -1 : 1));
+function merge(a, b) {
+  const m = new Map();
+  for (const c of a.cards) m.set(c.id, c);
+  for (const c of b.cards) { const x = m.get(c.id); if (!x || (c.updatedAt || 0) > (x.updatedAt || 0)) m.set(c.id, c); }
+  const cutoff = Date.now() - 60 * 864e5;
+  return { v: 1, cards: [...m.values()].filter(c => !(c.deleted && (c.updatedAt || 0) < cutoff)) };
+}
+class AuthError extends Error {}
+const STATUS = { local: "только на этом устройстве", pending: "сейчас сохраню…", saving: "сохраняю…", ok: "синхронно", error: "нет связи с GitHub", auth: "токен не подходит" };
+
+const sync = {
+  cfg: store.get("board.sync", null), busy: false, again: false, timer: null,
+  set(s, msg) { const b = $("#syncBtn"); b.dataset.s = s; $(".stext", b).textContent = STATUS[s]; b.title = msg || ""; },
+  schedule() { if (!this.cfg) return; clearTimeout(this.timer); this.set("pending"); this.timer = setTimeout(() => this.run(), 2000); },
+  url() { const { repo, path } = this.cfg; return `https://api.github.com/repos/${repo}/contents/${path.split("/").map(encodeURIComponent).join("/")}`; },
+  headers(json) { const h = { Authorization: `Bearer ${this.cfg.token}`, Accept: "application/vnd.github+json" }; if (json) h["Content-Type"] = "application/json"; return h; },
+  async get() {
+    const res = await fetch(`${this.url()}?ref=${encodeURIComponent(this.cfg.branch)}`, { headers: this.headers(), cache: "no-store" });
+    if (res.status === 404) return { remote: null, sha: null };
+    if (res.status === 401 || res.status === 403) throw new AuthError(`GitHub ответил ${res.status}`);
+    if (!res.ok) throw new Error(`GitHub ответил ${res.status}`);
+    const j = await res.json();
+    let remote = { v: 1, cards: [] };
+    try { const p = JSON.parse(b64dec(j.content || "")); if (p && Array.isArray(p.cards)) remote = p; } catch {}
+    return { remote, sha: j.sha };
+  },
+  async put(d, sha) {
+    const body = { message: `доска: ${new Date().toLocaleString("ru-RU")}`, content: b64enc(JSON.stringify(d, null, 1)), branch: this.cfg.branch };
+    if (sha) body.sha = sha;
+    const res = await fetch(this.url(), { method: "PUT", headers: this.headers(true), body: JSON.stringify(body) });
+    if (res.status === 409 || res.status === 422) return false;
+    if (res.status === 401 || res.status === 403) throw new AuthError(`GitHub ответил ${res.status}`);
+    if (!res.ok) throw new Error(`GitHub ответил ${res.status}`);
+    return true;
+  },
+  async run() {
+    if (!this.cfg) { this.set("local"); return; }
+    if (this.busy) { this.again = true; return; }
+    this.busy = true; clearTimeout(this.timer); this.set("saving");
+    try {
+      let done = false;
+      for (let i = 0; i < 4 && !done; i++) {
+        const { remote, sha } = await this.get();
+        const merged = remote ? merge(data, remote) : data;
+        if (canon(merged) !== canon(data)) { data = merged; saveLocal(); safeRender(); }
+        if (remote && canon(merged) === canon(remote)) { done = true; break; }
+        done = await this.put(merged, sha);
+      }
+      this.set(done ? "ok" : "error", done ? "" : "не получилось записать файл");
+    } catch (err) {
+      this.set(err instanceof AuthError ? "auth" : "error", err.message);
+    } finally {
+      this.busy = false;
+      if (this.again) { this.again = false; this.schedule(); }
+    }
+  }
+};
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") sync.run(); else if (sync.timer) sync.run(); });
+addEventListener("focus", () => sync.run());
+setInterval(() => { if (document.visibilityState === "visible" && !sync.busy) sync.run(); }, 60000);
+
+/* диалог */
+const dlg = $("#syncDlg");
+$("#syncBtn").addEventListener("click", () => {
+  const c = sync.cfg || {};
+  $("#fRepo").value = c.repo || ""; $("#fPath").value = c.path || "dashboard/board.json"; $("#fBranch").value = c.branch || "main";
+  $("#fToken").value = ""; $("#fToken").placeholder = c.token ? "сохранён · оставь пустым" : "github_pat_…";
+  $("#fErr").textContent = ""; $("#fOff").style.display = sync.cfg ? "" : "none";
+  dlg.showModal();
+});
+$("#fClose").addEventListener("click", () => dlg.close());
+$("#fOff").addEventListener("click", () => { sync.cfg = null; store.del("board.sync"); sync.set("local"); dlg.close(); });
+$("#fSave").addEventListener("click", async () => {
+  const err = $("#fErr");
+  let repo = $("#fRepo").value.trim().replace(/^https?:\/\/github\.com\//, "").replace(/\.git$/, "").replace(/\/+$/, "");
+  const path = $("#fPath").value.trim().replace(/^\/+/, "") || "dashboard/board.json";
+  const branch = $("#fBranch").value.trim() || "main";
+  const token = $("#fToken").value.trim() || (sync.cfg && sync.cfg.token) || "";
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) { err.textContent = "Репозиторий пишется так: логин/название"; return; }
+  if (!token) { err.textContent = "Нужен токен"; return; }
+  err.textContent = "проверяю…";
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }, cache: "no-store" });
+    if (res.status === 401) { err.textContent = "GitHub не принял токен. Скопируй его заново целиком."; return; }
+    if (res.status === 404 || res.status === 403) { err.textContent = "Не вижу такой репозиторий. Проверь название и что токену выдан к нему доступ."; return; }
+    if (!res.ok) { err.textContent = `GitHub ответил ${res.status}`; return; }
+    const j = await res.json();
+    if (j.permissions && !j.permissions.push) { err.textContent = "Токен может только читать. Дай ему Contents: Read and write."; return; }
+  } catch { err.textContent = "Не достучаться до GitHub. Проверь интернет или VPN."; return; }
+  const first = !sync.cfg;
+  sync.cfg = { repo, path, branch, token }; store.set("board.sync", sync.cfg);
+  if (first) { data.cards = data.cards.filter(c => !c.seed); saveLocal(); }
+  dlg.close(); render(); sync.run();
+});
+
+/* ================= старт ================= */
+applySeason();
+render();
+sync.set(sync.cfg ? "pending" : "local");
+sync.run();
+})();
+</script>
+</body>
+</html>
